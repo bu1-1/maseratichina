@@ -13,31 +13,66 @@ force-app/main/default/
 
 ## Connect your Salesforce sandbox
 
-### 1. Verify Connected App settings
+### Option A: Auth URL（快速验证，推荐先用这个）
+
+**第 1 步：在你本地电脑登录沙盒**
+
+```bash
+# 安装 SF CLI（如未安装）
+npm install -g @salesforce/cli
+
+# 浏览器登录沙盒
+sf org login web \
+  --instance-url https://test.salesforce.com \
+  --alias sandbox
+```
+
+**第 2 步：导出 Auth URL**
+
+```bash
+sf org display --target-org sandbox --verbose --json
+```
+
+从输出 JSON 里复制 `result.sfdxAuthUrl`，形如：
+
+```
+force://PlatformCLI::5Aep861...refresh_token...@maseratichina--all.sandbox.my.salesforce.com
+```
+
+**第 3 步：添加到 Cursor Secrets**
+
+打开 [Cloud Agents Environment](https://cursor.com/dashboard/cloud-agents/environments/e/642b767d-a682-11f1-a7d1-d6b4613131ce) → **Secrets**：
+
+| Secret | 值 |
+|--------|-----|
+| `SFDX_AUTH_URL` | 完整的 `force://PlatformCLI::...` 字符串 |
+| `SF_ORG_ALIAS` | *(可选)* 如 `sandbox` |
+
+> 不要把 Auth URL 发到聊天或提交到 Git。Refresh token 过期后需重新导出。
+
+**第 4 步：启动新 Cloud Agent**，环境会自动执行 `scripts/sf-auth.sh` 完成登录。
+
+---
+
+### Option B: JWT（长期稳定，适合生产）
 
 In your sandbox (**Setup → App Manager → your Connected App**):
 
 - OAuth scopes include `api` and `refresh_token, offline_access`
-- Digital certificate is uploaded (matches your private key)
+- **Enable JWT Bearer Flow** + upload digital certificate
 - Integration user is **pre-authorized** for the app
 
-### 2. Add Cursor Secrets
-
-Open [Cloud Agents Environment](https://cursor.com/dashboard/cloud-agents/environments/e/642b767d-a682-11f1-a7d1-d6b4613131ce) → **Secrets** and add:
+Add Cursor Secrets:
 
 | Secret | Value |
 |--------|-------|
 | `SF_CLIENT_ID` | Connected App Consumer Key |
 | `SF_USERNAME` | Integration user email |
-| `SF_JWT_KEY` | RSA private key (full PEM, including `BEGIN/END` lines) |
+| `SF_JWT_KEY` | RSA private key (full PEM) |
 | `SF_INSTANCE_URL` | `https://test.salesforce.com` |
-| `SF_ORG_ALIAS` | *(optional)* default alias, e.g. `sandbox` |
+| `SF_ORG_ALIAS` | *(optional)* e.g. `sandbox` |
 
 > Never commit keys or tokens to the repository.
-
-### 3. Start a new Cloud Agent
-
-The environment installs Salesforce CLI on build and runs `scripts/sf-auth.sh` on start to authenticate via JWT.
 
 ## Common commands
 
