@@ -1,0 +1,12 @@
+{
+  "packageDirectories": [
+    {
+      "path": "force-app",
+      "default": true
+    }
+  ],
+  "name": "maseratichina",
+  "namespace": "",
+  "sfdcLoginUrl": "https://login.sfcrmproducts.cn",
+  "sourceApiVersion": "62.0"
+}

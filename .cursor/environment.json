@@ -1,0 +1,6 @@
+{
+  "name": "maseratichina",
+  "user": "ubuntu",
+  "install": "npm install",
+  "start": "bash scripts/sf-auth.sh"
+}
