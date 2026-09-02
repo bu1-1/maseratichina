@@ -1,0 +1,7 @@
+{
+  "name": "maseratichina",
+  "private": true,
+  "devDependencies": {
+    "@salesforce/cli": "^2.146.0"
+  }
+}
