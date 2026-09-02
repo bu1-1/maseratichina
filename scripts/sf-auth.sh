@@ -26,7 +26,7 @@ if [[ -n "${SFDX_AUTH_URL:-}" ]]; then
   rm -f "$AUTH_FILE"
 
 elif [[ -n "${SF_CLIENT_ID:-}" && -n "${SF_USERNAME:-}" && -n "${SF_JWT_KEY:-}" ]]; then
-  INSTANCE_URL="${SF_INSTANCE_URL:-https://test.salesforce.com}"
+  INSTANCE_URL="${SF_INSTANCE_URL:-https://login.sfcrmproducts.cn}"
   KEY_FILE="/tmp/sf-jwt-key.pem"
 
   printf '%s\n' "$SF_JWT_KEY" > "$KEY_FILE"

@@ -15,17 +15,28 @@ force-app/main/default/
 
 ### Option A: Auth URL（快速验证，推荐先用这个）
 
-**第 1 步：在你本地电脑登录沙盒**
+**第 1 步：在你本地电脑登录沙盒（阿里云 SFoA）**
 
-```bash
-# 安装 SF CLI（如未安装）
-npm install -g @salesforce/cli
+> 阿里云版 Salesforce **不能**用 `test.salesforce.com`，必须用 `sfcrmproducts.cn` 域名，且必须指定 Connected App 的 Consumer Key。
 
-# 浏览器登录沙盒
-sf org login web \
-  --instance-url https://test.salesforce.com \
-  --alias sandbox
+在 Windows CMD 里执行（**一行，不要加 `\`**）：
+
+```cmd
+sf org login web --instance-url https://maseratichina--all.sandbox.my.sfcrmproducts.cn --client-id 你的Consumer_Key --alias sandbox --set-default
 ```
+
+- `--instance-url`：你的沙盒 My Domain（从浏览器地址栏获取，格式为 `https://<org>--<sandbox>.sandbox.my.sfcrmproducts.cn`）
+- `--client-id`：Vscode App 的 **Consumer Key**（使用者密钥）
+
+如果浏览器打不开或命令卡住，先设置环境变量再执行：
+
+```cmd
+set SF_DISABLE_DNS_CHECK=true
+set SF_DOMAIN_RETRY=0
+sf org login web --instance-url https://maseratichina--all.sandbox.my.sfcrmproducts.cn --client-id 你的Consumer_Key --alias sandbox --set-default
+```
+
+登录过程中可能会提示输入 **Consumer Secret**（使用者密码），粘贴后回车。
 
 **第 2 步：导出 Auth URL**
 
@@ -36,7 +47,7 @@ sf org display --target-org sandbox --verbose --json
 从输出 JSON 里复制 `result.sfdxAuthUrl`，形如：
 
 ```
-force://PlatformCLI::5Aep861...refresh_token...@maseratichina--all.sandbox.my.salesforce.com
+force://PlatformCLI::5Aep861...refresh_token...@maseratichina--all.sandbox.my.sfcrmproducts.cn
 ```
 
 **第 3 步：添加到 Cursor Secrets**
@@ -69,7 +80,7 @@ Add Cursor Secrets:
 | `SF_CLIENT_ID` | Connected App Consumer Key |
 | `SF_USERNAME` | Integration user email |
 | `SF_JWT_KEY` | RSA private key (full PEM) |
-| `SF_INSTANCE_URL` | `https://test.salesforce.com` |
+| `SF_INSTANCE_URL` | `https://login.sfcrmproducts.cn` |
 | `SF_ORG_ALIAS` | *(optional)* e.g. `sandbox` |
 
 > Never commit keys or tokens to the repository.
