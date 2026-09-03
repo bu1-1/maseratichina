@@ -6,7 +6,8 @@ KEY_FILE="${SF_JWT_KEY_FILE:-$ROOT/salesforce-auth/certs/server.key}"
 # Prefer SF_USERNAME; fall back to SF_ORG_ALIAS if that secret holds the login user
 USERNAME="${SF_USERNAME:-${SF_ORG_ALIAS:-}}"
 ALIAS="${SF_CLI_ALIAS:-aliyun-all}"
-INSTANCE_URL="${SF_INSTANCE_URL:-https://maseratichina--all.sandbox.my.sfcrmapps.cn}"
+# China/Alibaba sandbox My Domain uses sfcrmproducts.cn (not lightning/sfcrmapps.cn)
+INSTANCE_URL="${SF_INSTANCE_URL:-https://maseratichina--all.sandbox.my.sfcrmproducts.cn}"
 
 export PATH="${HOME}/.local/bin:${PATH}"
 

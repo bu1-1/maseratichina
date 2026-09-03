@@ -20,7 +20,10 @@
 | `SF_CLI_ALIAS` | CLI 本地别名，默认 `aliyun-all` |
 
 - Lightning URL（浏览器）: `https://maseratichina--all.sandbox.lightning.sfcrmapps.cn/`
-- API / JWT Instance URL（推荐）: `https://maseratichina--all.sandbox.my.sfcrmapps.cn`
+- API / JWT My Domain（正确）: `https://maseratichina--all.sandbox.my.sfcrmproducts.cn`
+- 沙盒登录主机（可选）: `https://test.sfcrmproducts.cn`
+
+> 注意：`*.my.sfcrmapps.cn` 无法解析；lightning 会跳到 `*.my.sfcrmproducts.cn`。
 
 ## 你需要在 Salesforce 里完成的步骤
 
@@ -37,11 +40,18 @@
    - **Use digital signatures** / **Enable JWT Bearer Flow**：勾选，并上传仓库中的 `salesforce-auth/certs/server.crt`
 5. 保存后打开 **Manage Consumer Details**，复制 **Consumer Key**（Client ID）→ 设为环境密钥 `SF_CLIENT_ID`
 6. **Manage** → **Edit Policies**（或 Policies 页）：
-   - Permitted Users：**Admin approved users are pre-authorized**
+   - Permitted Users：**Admin approved users are pre-authorized**（必选，否则报 `user hasn't approved this consumer`）
    - IP Relaxation：建议 **Relax IP restrictions**（Cloud Agent 出口 IP 不固定时必要）
-7. 把运行用户的 Profile / Permission Set 加到该 App 的授权列表
+7. 把运行用户的 Profile / Permission Set 加到该 App 的授权列表（Manage Profiles / Permission Sets）
 
 > 新建 Connected App 后策略生效可能要等几分钟。
+
+## 私钥在哪里
+
+- 本仓库机器路径：`salesforce-auth/certs/server.key`
+- **不会**出现在 Salesforce Setup 里（Setup 只保存你上传的公钥 `.crt`）
+- 查看：`cat salesforce-auth/certs/server.key`
+- 该文件已 gitignore，换机器/新 Agent 时需要重新注入私钥密钥
 
 ## 拿到 Consumer Key 后登录
 

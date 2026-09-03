@@ -16,7 +16,10 @@ ls -la salesforce-auth/certs/server.crt
 - [ ] IP Relaxation = Relax IP restrictions（Cloud Agent 场景）
 - [ ] 已复制 Consumer Key，并写入环境密钥 `SF_CLIENT_ID`
 
-Instance URL 请用 **my** 域名，不要用 lightning：
+Instance URL 请用 **my.sfcrmproducts.cn**，不要用 lightning / sfcrmapps：
 
 - 错误：`https://….sandbox.lightning.sfcrmapps.cn`
-- 正确：`https://….sandbox.my.sfcrmapps.cn`
+- 错误：`https://….sandbox.my.sfcrmapps.cn`（DNS 无法解析）
+- 正确：`https://….sandbox.my.sfcrmproducts.cn`
+
+当前卡点若是 `user hasn't approved this consumer`：到 Connected App → Manage → Edit Policies，设为 Admin approved，并把用户 Profile 勾上。
