@@ -4,6 +4,6 @@
 public with sharing class GhSfBridgeHealth {
     @AuraEnabled(cacheable=true)
     public static String ping() {
-        return 'ok';
+        return 'ok'; // CI trigger
     }
 }
