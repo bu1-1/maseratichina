@@ -1,0 +1,62 @@
+name: Salesforce Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "force-app/**"
+      - "manifest/**"
+      - "sfdx-project.json"
+  workflow_dispatch:
+
+concurrency:
+  group: sf-deploy-main
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: JWT auth + deploy to sandbox
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SF_INSTANCE_URL: https://maseratichina--all.sandbox.my.sfcrmproducts.cn
+      SF_AUDIENCE_URL: https://maseratichina--all.sandbox.my.sfcrmproducts.cn
+      SF_CLI_ALIAS: aliyun-all
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Salesforce CLI
+        run: npm install -g @salesforce/cli
+
+      - name: Write JWT key
+        env:
+          SF_JWT_KEY: ${{ secrets.SF_JWT_KEY }}
+        run: |
+          test -n "$SF_JWT_KEY" || { echo "Missing secret SF_JWT_KEY"; exit 1; }
+          mkdir -p salesforce-auth/certs
+          printf '%s\n' "$SF_JWT_KEY" > salesforce-auth/certs/server.key
+          chmod 600 salesforce-auth/certs/server.key
+
+      - name: Authenticate (JWT)
+        env:
+          SF_CLIENT_ID: ${{ secrets.SF_CLIENT_ID }}
+          SF_USERNAME: ${{ secrets.SF_USERNAME }}
+        run: |
+          test -n "$SF_CLIENT_ID" || { echo "Missing secret SF_CLIENT_ID"; exit 1; }
+          test -n "$SF_USERNAME" || { echo "Missing secret SF_USERNAME"; exit 1; }
+          sf org login jwt \
+            --client-id "$SF_CLIENT_ID" \
+            --jwt-key-file salesforce-auth/certs/server.key \
+            --username "$SF_USERNAME" \
+            --alias "$SF_CLI_ALIAS" \
+            --instance-url "$SF_INSTANCE_URL" \
+            --set-default
+
+      - name: Deploy force-app
+        run: |
+          sf project deploy start \
+            --source-dir force-app \
+            --target-org "$SF_CLI_ALIAS" \
+            --test-level NoTestRun \
+            --wait 30

@@ -1,5 +1,18 @@
-# Salesforce JWT private key — never commit
+# JWT private key — never commit
 salesforce-auth/certs/server.key
 salesforce-auth/certs/*.key
-.sfdx/
+
+# Salesforce local auth / cache
 .sf/
+.sfdx/
+.local/
+
+# Node
+node_modules/
+coverage/
+.eslintcache
+*.log
+
+# OS / IDE
+.DS_Store
+.idea/
