@@ -8,6 +8,8 @@ USERNAME="${SF_USERNAME:-${SF_ORG_ALIAS:-}}"
 ALIAS="${SF_CLI_ALIAS:-aliyun-all}"
 # China/Alibaba sandbox My Domain uses sfcrmproducts.cn (not lightning/sfcrmapps.cn)
 INSTANCE_URL="${SF_INSTANCE_URL:-https://maseratichina--all.sandbox.my.sfcrmproducts.cn}"
+# China/Alibaba orgs reject login.salesforce.com audience; override for sf CLI JWT
+export SF_AUDIENCE_URL="${SF_AUDIENCE_URL:-$INSTANCE_URL}"
 
 export PATH="${HOME}/.local/bin:${PATH}"
 
