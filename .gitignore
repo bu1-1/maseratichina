@@ -1,0 +1,5 @@
+# Salesforce JWT private key — never commit
+salesforce-auth/certs/server.key
+salesforce-auth/certs/*.key
+.sfdx/
+.sf/
