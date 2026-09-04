@@ -1,25 +1,25 @@
-name: Salesforce Deploy
+name: Salesforce Sync From Org
 
+# Pull sandbox metadata into GitHub on a schedule.
+# NOTE: Scheduled workflows only run from the default branch (main).
 on:
-  push:
-    branches: [main]
-    paths:
-      - "force-app/**"
-      - "manifest/**"
-      - "sfdx-project.json"
+  schedule:
+    # Every 30 minutes
+    - cron: "*/30 * * * *"
   workflow_dispatch:
 
 concurrency:
-  group: sf-deploy-main
+  group: sf-org-sync
   cancel-in-progress: false
 
+permissions:
+  contents: write
+
 jobs:
-  deploy:
-    name: JWT auth + deploy to sandbox
-    # Skip commits that were pulled FROM the org (avoid sync↔deploy loop)
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.head_commit != null && !contains(github.event.head_commit.message, '[org-sync]')) }}
+  sync:
+    name: Retrieve sandbox → commit to GitHub
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 90
     env:
       SF_INSTANCE_URL: https://maseratichina--all.sandbox.my.sfcrmproducts.cn
       SF_AUDIENCE_URL: https://maseratichina--all.sandbox.my.sfcrmproducts.cn
@@ -27,6 +27,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # Need full history / write token for push
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Install Salesforce CLI
         run: npm install -g @salesforce/cli
@@ -55,10 +59,28 @@ jobs:
             --instance-url "$SF_INSTANCE_URL" \
             --set-default
 
-      - name: Deploy force-app
+      - name: Retrieve metadata from sandbox
         run: |
-          sf project deploy start \
-            --source-dir force-app \
-            --target-org "$SF_CLI_ALIAS" \
-            --test-level NoTestRun \
-            --wait 30
+          chmod +x scripts/sf-sync-from-org.sh
+          ./scripts/sf-sync-from-org.sh manifest/sync-package.xml
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Never commit secrets / local auth
+          rm -rf salesforce-auth/certs/server.key .sf .sfdx || true
+          rm -rf force-app/main/default/labels || true
+
+          git add -A force-app manifest
+          if git diff --cached --quiet; then
+            echo "No metadata changes to sync."
+            exit 0
+          fi
+
+          git commit -m "[org-sync] Sync metadata from Salesforce sandbox
+
+Automated retrieve from aliyun-all (maseratichina--all).
+"
+          git push origin HEAD:${{ github.ref_name }}
